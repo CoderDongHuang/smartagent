@@ -1,0 +1,12 @@
+__pycache__
+*.pyc
+*.pyo
+.git
+.gitignore
+.idea
+.vscode
+*.md
+.env
+chroma_db
+node_modules
+.DS_Store

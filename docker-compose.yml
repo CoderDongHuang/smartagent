@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # Redis服务
+  redis:
+    image: redis:7-alpine
+    container_name: smartagent-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --requirepass 123456
+    restart: unless-stopped
+    networks:
+      - smartagent-network
+
+  # 智能客服应用
+  app:
+    build: .
+    container_name: smartagent-app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./.env:/app/.env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_PASSWORD=123456
+      - CHROMA_PERSIST_DIR=./chroma_db
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - smartagent-network
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  smartagent-network:
+    driver: bridge

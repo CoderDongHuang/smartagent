@@ -46,13 +46,20 @@ class CustomerServiceAgent:
         self.ticket_system = ticket_system
         self.conversation_manager = conversation_manager
 
-        # 初始化LLM
-        os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
-        os.environ["OPENAI_API_BASE"] = OPENAI_BASE_URL
+        # 初始化LLM（显式传入所有参数，避免代理问题）
+        import httpx
+
+        # 创建不带代理的 HTTP 客户端
+        http_client = httpx.Client(
+            trust_env=False  # 不使用环境变量中的代理设置
+        )
 
         self.llm = ChatOpenAI(
             model=llm_model,
-            temperature=temperature
+            temperature=temperature,
+            api_key=OPENAI_API_KEY,
+            base_url=OPENAI_BASE_URL,
+            http_client=http_client
         )
 
         # 定义工具
